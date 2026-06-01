@@ -1,0 +1,30 @@
+{
+  "name": "buddah",
+  "version": "0.1.0",
+  "description": "Bureaucracy Driven Development and Architecture Harness — ADR, change-request, and tutorial skills with proactive discoverability.",
+  "author": {
+    "name": "Alexey Tigarev"
+  },
+  "license": "MIT",
+  "keywords": [
+    "adr",
+    "decision-records",
+    "change-request",
+    "tutorial",
+    "workflow"
+  ],
+  "_note": "Hooks are declared inline here (not in hooks/hooks.json) due to Claude Code bug #10225 — UserPromptSubmit hooks declared via hooks.json register but never fire.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_DIR}/hooks/buddah-next-suggest.sh",
+            "statusMessage": "Checking for buddah suggestion..."
+          }
+        ]
+      }
+    ]
+  }
+}

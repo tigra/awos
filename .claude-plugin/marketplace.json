@@ -13,6 +13,12 @@
       "source": "./plugins/awos",
       "description": "Comprehensive code quality audit framework with auto-discoverable dimensions",
       "version": "2.1.0"
+    },
+    {
+      "name": "buddah",
+      "source": "./plugins/buddah",
+      "description": "Bureaucracy Driven Development and Architecture Harness — opt-in ADR, change-request, and tutorial skills with proactive discoverability",
+      "version": "0.1.0"
     }
   ]
 }

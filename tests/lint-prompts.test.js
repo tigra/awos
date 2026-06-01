@@ -20,9 +20,9 @@ const { parse } = require('./helpers/frontmatter');
 const repoRoot = path.resolve(__dirname, '..');
 const commandsDir = path.join(repoRoot, 'commands');
 const wrappersDir = path.join(repoRoot, 'claude', 'commands');
+const pluginsDir = path.join(repoRoot, 'plugins');
 const dimensionsDir = path.join(
-  repoRoot,
-  'plugins',
+  pluginsDir,
   'awos',
   'skills',
   'ai-readiness-audit',
@@ -40,6 +40,29 @@ function listMarkdown(dir) {
     .readdirSync(dir)
     .filter((f) => f.endsWith('.md'))
     .sort();
+}
+
+// Walk plugins/<plugin>/skills/<skill>/SKILL.md and yield {plugin, skill, name, file}
+// objects keyed by the frontmatter `name`. The cross-reference test uses this
+// to know which `/awos:<name>` references are plugin-contributed.
+function listPluginSkills() {
+  const out = [];
+  if (!fs.existsSync(pluginsDir)) return out;
+  for (const plugin of fs.readdirSync(pluginsDir)) {
+    const skillsDir = path.join(pluginsDir, plugin, 'skills');
+    if (!fs.existsSync(skillsDir) || !fs.statSync(skillsDir).isDirectory()) {
+      continue;
+    }
+    for (const skill of fs.readdirSync(skillsDir)) {
+      const skillFile = path.join(skillsDir, skill, 'SKILL.md');
+      if (!fs.existsSync(skillFile)) continue;
+      const { data } = parse(readUtf8(skillFile));
+      if (data && typeof data.name === 'string' && data.name.length > 0) {
+        out.push({ plugin, skill, name: data.name, file: skillFile });
+      }
+    }
+  }
+  return out;
 }
 
 const wrapperSchema = JSON.parse(
@@ -208,8 +231,17 @@ test('all /awos:<name> cross-references resolve', () => {
   const rootCommands = new Set(
     listMarkdown(commandsDir).map((f) => '/awos:' + f.replace(/\.md$/, ''))
   );
-  // Plugin-provided commands (the audit plugin contributes /awos:ai-readiness-audit).
-  rootCommands.add('/awos:ai-readiness-audit');
+  // Plugin-provided commands — listed here explicitly, NOT auto-discovered
+  // from the plugins' own SKILL.md files. The test is a contract between
+  // doc references and the set of commands the project promises to users;
+  // both sides must come from independent sources, otherwise an in-lockstep
+  // rename of a SKILL.md `name` and every doc that mentions it would pass
+  // silently — exactly the drift this assertion exists to catch.
+  // When a plugin is added or renames a command, add or update an entry here.
+  rootCommands.add('/awos:ai-readiness-audit'); // plugins/awos
+  rootCommands.add('/awos:adr'); // plugins/buddah
+  rootCommands.add('/awos:change-request'); // plugins/buddah
+  rootCommands.add('/awos:tutorial'); // plugins/buddah
   for (const ref of references) {
     assert.ok(
       rootCommands.has(ref),
@@ -499,6 +531,32 @@ test('agent-template.md cues the spawned agent to apply its skills', () => {
     /skills\b[^\n]*\bfrontmatter\b|\bfrontmatter\b[^\n]*\bskills\b/i.test(body),
     'templates/agent-template.md body must instruct the agent to apply skills declared in its frontmatter'
   );
+});
+
+test('every plugin SKILL.md has valid frontmatter', () => {
+  // Plugin skills land in user projects as /awos:<name> slash commands;
+  // missing or malformed frontmatter would break the slash-command surface.
+  // No floor on plugin count — a plugin may legitimately ship only agents,
+  // only hooks, or only commands with no skills. The contract is per-skill,
+  // not per-plugin.
+  for (const { plugin, skill, file } of listPluginSkills()) {
+    const { data, hasFrontmatter } = parse(readUtf8(file));
+    assert.ok(
+      hasFrontmatter,
+      `plugins/${plugin}/skills/${skill}/SKILL.md is missing frontmatter`
+    );
+    for (const key of ['name', 'description']) {
+      assert.ok(
+        typeof data[key] === 'string' && data[key].length > 0,
+        `plugins/${plugin}/skills/${skill}/SKILL.md: required key "${key}" is missing or empty`
+      );
+    }
+    assert.equal(
+      data.name,
+      skill,
+      `plugins/${plugin}/skills/${skill}/SKILL.md: frontmatter name "${data.name}" must equal directory name "${skill}"`
+    );
+  }
 });
 
 test('context/<path> references in prompts are internally consistent', () => {
