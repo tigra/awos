@@ -20,7 +20,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR}/hooks/buddah-next-suggest.sh",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/buddah-next-suggest.sh",
             "statusMessage": "Checking for buddah suggestion..."
           }
         ]

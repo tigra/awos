@@ -4,7 +4,7 @@ description: >-
   Record an Architecture Decision Record (context, alternatives, decision,
   rationale, consequences) for the AWOS project. Use when asked to "log an
   ADR", "record an architectural decision", "capture this design choice",
-  or when the /awos:adr command is invoked. Use also when the user describes
+  or when the /buddah:adr command is invoked. Use also when the user describes
   a load-bearing architectural choice (a tech swap, vendor choice,
   deployment-target shift, security posture) that doesn't yet have a
   recorded rationale.
@@ -27,11 +27,11 @@ This skill is **opt-in**: the very first step gives the user a clean way to skip
 
 - An impactful architectural change has just been made (e.g., new service in the topology, a database swap, a deployment-target shift, a different consensus protocol, a new auth path).
 - An important architectural choice has been taken even without changing existing structure (e.g., picking a region, a programming model, a security posture, a vendor lock-in trade-off).
-- The user has invoked `/awos:adr` directly to record a decision they made independently of any AWOS workflow.
+- The user has invoked `/buddah:adr` directly to record a decision they made independently of any AWOS workflow.
 
 **When _not_ to use:**
 
-- The change is purely a requirements / scope shift — that's `/awos:change-request`.
+- The change is purely a requirements / scope shift — that's `/buddah:change-request`.
 - The change is trivial (a renamed file, a refactor with no architectural implication).
 - No real alternatives were considered. Then the choice is a default, not a decision, and an ADR will be empty.
 

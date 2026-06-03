@@ -4,7 +4,7 @@ description: >-
   Capture a change request when a previously-agreed requirement is being
   revised, descoped, or overridden in the AWOS project. Use when asked
   to "log a change request", "record this requirement change", or when
-  the /awos:change-request command is invoked. Use also when the user
+  the /buddah:change-request command is invoked. Use also when the user
   describes overriding a prior product-definition, roadmap item, or spec
   acceptance criterion — especially after work was already done against
   the old assumption.
@@ -163,6 +163,6 @@ Based on the CR's §7 checklist and the impact table, surface the most useful ne
 - CR descopes a roadmap item already marked `[x]` → _"Run `/awos:roadmap` to unmark and annotate the descope."_
 - CR adjusts product-definition scope materially → _"Run `/awos:roadmap` to re-evaluate phase ordering."_
 - CR moves an architectural assumption → _"Run `/awos:architecture` to update the relevant section."_
-- CR introduces, revises, or invalidates an architectural choice → _"Run `/awos:adr` to record the architectural decision and its alternatives, separately from the requirements change."_
+- CR introduces, revises, or invalidates an architectural choice → _"Run `/buddah:adr` to record the architectural decision and its alternatives, separately from the requirements change."_
 
 Format each as a single line the user can copy.

@@ -2,11 +2,11 @@
 name: awos-next
 description: >-
   Propose, at the end of an AWOS phase, whether a buddah plugin command
-  (/awos:adr, /awos:change-request, /awos:tutorial) is conditionally
+  (/buddah:adr, /buddah:change-request, /buddah:tutorial) is conditionally
   relevant — and if so, print a single one-block suggestion. Invoked by
   the buddah UserPromptSubmit hook after /awos:architecture, /awos:tech,
-  /awos:product, /awos:roadmap, /awos:spec, /awos:verify, /awos:adr,
-  /awos:change-request, or /awos:tutorial completes. Read-only; never
+  /awos:product, /awos:roadmap, /awos:spec, /awos:verify, /buddah:adr,
+  /buddah:change-request, or /buddah:tutorial completes. Read-only; never
   invokes the suggested command. Stays silent when it can't confidently
   determine a condition fires.
 disable-model-invocation: true
@@ -23,7 +23,7 @@ Runs as the **final step** of an AWOS phase when the buddah hook injected an ins
 - **Stay silent on uncertainty.** If you cannot confidently determine that a trigger condition fires, emit no suggestion. Silence is the preferred default; noise erodes the value of the suggestions that _do_ fire. This applies even in Auto Mode.
 - **One block, at most one suggestion per turn.** The skill emits **either** a single Buddah-suggestion block **or** nothing. No multi-suggestion lists. If two conditions both seem to fire, pick the more load-bearing one.
 - **Read only.** The skill reads the relevant artifact files. It does not write anywhere, does not modify project state, and does not invoke other commands.
-- **Plugin commands only.** This skill never suggests core AWOS commands (`/awos:tech`, `/awos:tasks`, etc.) — those are core's own concern. The three suggestable commands are `/awos:adr`, `/awos:change-request`, and `/awos:tutorial`. Exception: the post-completion triggers for the plugin's own commands (Section "Plugin-command triggers" below) may suggest a core command as the natural follow-up.
+- **Plugin commands only.** This skill never suggests core AWOS commands (`/awos:tech`, `/awos:tasks`, etc.) — those are core's own concern. The three suggestable commands are `/buddah:adr`, `/buddah:change-request`, and `/buddah:tutorial`. Exception: the post-completion triggers for the plugin's own commands (Section "Plugin-command triggers" below) may suggest a core command as the natural follow-up.
 
 ## Step 1 — Identify the completed phase
 
@@ -44,7 +44,7 @@ Each trigger references one or two specific artifact paths to inspect. Read the 
 
 Each trigger has a **condition** the skill evaluates by reading the listed artifacts. If the condition fires, emit the suggestion; if it doesn't (or you can't tell confidently), stay silent.
 
-### `architecture` → `/awos:adr`
+### `architecture` → `/buddah:adr`
 
 **Condition:** the architecture doc was modified (not a first-time write) and the change records or implies a load-bearing architectural choice (new service in the topology, a vendor pick, a security posture, a region choice, etc.).
 
@@ -52,9 +52,9 @@ Each trigger has a **condition** the skill evaluates by reading the listed artif
 
 **Stay silent when:** the architecture doc didn't exist before this phase (first-time write — no prior decision to record yet), or the change is purely cosmetic/wording.
 
-**Suggestion:** `/awos:adr` — _"this `<phase>` run recorded `<one-line: what>`; capture the decision rationale and alternatives in an ADR before it's forgotten."_
+**Suggestion:** `/buddah:adr` — _"this `<phase>` run recorded `<one-line: what>`; capture the decision rationale and alternatives in an ADR before it's forgotten."_
 
-### `tech` → `/awos:adr`
+### `tech` → `/buddah:adr`
 
 **Condition:** the just-updated `technical-considerations.md` records a load-bearing technical choice — a tech swap, a scaling tradeoff, alternatives weighed and one picked, a vendor lock-in, an irreversible-or-costly-to-reverse decision.
 
@@ -62,9 +62,9 @@ Each trigger has a **condition** the skill evaluates by reading the listed artif
 
 **Stay silent when:** the file just lists technical considerations without weighing alternatives, or the choices are unambiguous defaults (e.g. "use the project's existing test framework").
 
-**Suggestion:** `/awos:adr` — _"the tech spec records `<one-line: what>` — worth capturing the decision context separately in an ADR."_
+**Suggestion:** `/buddah:adr` — _"the tech spec records `<one-line: what>` — worth capturing the decision context separately in an ADR."_
 
-### `product` → `/awos:change-request`
+### `product` → `/buddah:change-request`
 
 **Condition:** `context/product/product-definition.md` was revised (not first-time written) and the revision is non-trivial (target audience shift, scope shift, value-prop change, primary-user pivot).
 
@@ -72,9 +72,9 @@ Each trigger has a **condition** the skill evaluates by reading the listed artif
 
 **Stay silent when:** the product definition didn't exist before (first-time write — nothing previously-agreed to revise), or the change is trivial (typo, wording polish).
 
-**Suggestion:** `/awos:change-request` — _"this revision changes `<one-line: previously-agreed assumption>` — capture the driver and impact in a change request."_
+**Suggestion:** `/buddah:change-request` — _"this revision changes `<one-line: previously-agreed assumption>` — capture the driver and impact in a change request."_
 
-### `roadmap` → `/awos:change-request`
+### `roadmap` → `/buddah:change-request`
 
 **Condition:** the roadmap was revised in a way that changes priorities, item ordering, or scope of an already-`[x]`-completed item.
 
@@ -82,9 +82,9 @@ Each trigger has a **condition** the skill evaluates by reading the listed artif
 
 **Stay silent when:** the roadmap was first-time written, or the change is purely additive (new items appended, no reordering or descope).
 
-**Suggestion:** `/awos:change-request` — _"the roadmap reordered `<one-line>` — capture the change driver and impact."_
+**Suggestion:** `/buddah:change-request` — _"the roadmap reordered `<one-line>` — capture the change driver and impact."_
 
-### `spec` → `/awos:change-request`
+### `spec` → `/buddah:change-request`
 
 **Condition:** this spec revises a prior requirement — its acceptance criteria overlap (replace, narrow, or contradict) acceptance criteria in another spec or in the product definition.
 
@@ -92,9 +92,9 @@ Each trigger has a **condition** the skill evaluates by reading the listed artif
 
 **Stay silent when:** the new spec is purely additive (no overlap with prior specs' acceptance criteria), or when prior-spec content was not loaded into context.
 
-**Suggestion:** `/awos:change-request` — _"this spec narrows/replaces `<one-line: prior agreement>` — log a CR for the change driver and impact on already-shipped work."_
+**Suggestion:** `/buddah:change-request` — _"this spec narrows/replaces `<one-line: prior agreement>` — log a CR for the change driver and impact on already-shipped work."_
 
-### `verify` → `/awos:tutorial`
+### `verify` → `/buddah:tutorial`
 
 **Condition:** verify just marked a spec as Completed AND the feature is user-facing (UI-visible, CLI command, API surface) OR onboarding-relevant (a fundamental concept future contributors will need to understand).
 
@@ -102,13 +102,13 @@ Each trigger has a **condition** the skill evaluates by reading the listed artif
 
 **Stay silent when:** the spec is purely internal (refactor, internal tooling, test infrastructure) and not onboarding-relevant.
 
-**Suggestion:** `/awos:tutorial NNN-<slug>` — _"`<spec-title>` is a `<user-facing | onboarding-relevant>` feature worth narrating for future readers."_
+**Suggestion:** `/buddah:tutorial NNN-<slug>` — _"`<spec-title>` is a `<user-facing | onboarding-relevant>` feature worth narrating for future readers."_
 
 ## Step 4 — Plugin-command triggers
 
 After a buddah command itself completes, the skill may suggest the natural follow-up core command.
 
-### `/awos:adr` → `/awos:tech` (conditional)
+### `/buddah:adr` → `/awos:tech` (conditional)
 
 **Condition:** the just-saved ADR (in `context/adr/NNN-*.md`) implies new technical considerations that aren't yet in any current spec's `technical-considerations.md`.
 
@@ -118,7 +118,7 @@ After a buddah command itself completes, the skill may suggest the natural follo
 
 **Suggestion:** `/awos:tech` — _"the ADR records `<one-line: decision>` — update the relevant spec's technical-considerations to reflect it."_
 
-### `/awos:change-request` → `/awos:tech` then `/awos:tasks` (conditional)
+### `/buddah:change-request` → `/awos:tech` then `/awos:tasks` (conditional)
 
 **Condition:** the just-saved CR (in `context/change-requests/NNN-*.md`) is `Nature: Revisionary` or `Removal / descope`, AND its §5 impact table shows `Already implemented? Yes` or `Partially` for at least one row.
 
@@ -128,7 +128,7 @@ After a buddah command itself completes, the skill may suggest the natural follo
 
 **Suggestion:** `/awos:tech` — _"the CR rescopes implemented work in `<spec-name>` — re-do the tech spec and tasks to reflect the new shape; suggest `/awos:tech` then `/awos:tasks`."_
 
-### `/awos:tutorial` → done (always)
+### `/buddah:tutorial` → done (always)
 
 **Condition:** the tutorial saved successfully.
 

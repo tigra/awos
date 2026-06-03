@@ -118,6 +118,8 @@ The plugin uses an **auto-discovery** architecture: each audit dimension is a st
 
 When bumping plugin behavior, update version numbers in **both** `.claude-plugin/marketplace.json` and `plugins/awos/.claude-plugin/plugin.json`.
 
+If you use hooks in plugins: the right env variable referring to the plugin root is CLAUDE_PLUGIN_ROOT.
+
 ## Conventions
 
 - Framework files are markdown. Treat them as prompts: clarity, structure, and explicit role/task/process sections matter more than terseness.
